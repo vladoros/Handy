@@ -20,6 +20,7 @@ import { ApiKeyField } from "../PostProcessingSettingsApi/ApiKeyField";
 import { ModelSelect } from "../PostProcessingSettingsApi/ModelSelect";
 import { usePostProcessProviderState } from "../PostProcessingSettingsApi/usePostProcessProviderState";
 import { ShortcutInput } from "../ShortcutInput";
+import { ToggleSwitch } from "../../ui/ToggleSwitch";
 import { useSettings } from "../../../hooks/useSettings";
 
 const PostProcessingSettingsApiComponent: React.FC = () => {
@@ -425,6 +426,19 @@ PostProcessingSettingsPrompts.displayName = "PostProcessingSettingsPrompts";
 
 export const PostProcessingSettings: React.FC = () => {
   const { t } = useTranslation();
+  const { getSetting, updateSetting, isUpdating } = useSettings();
+
+  const lowercaseEnabled = getSetting("post_process_lowercase") ?? false;
+  const removePeriodsEnabled =
+    getSetting("post_process_remove_periods") ?? false;
+
+  const handleLowercaseChange = async (enabled: boolean) => {
+    await updateSetting("post_process_lowercase", enabled);
+  };
+
+  const handleRemovePeriodsChange = async (enabled: boolean) => {
+    await updateSetting("post_process_remove_periods", enabled);
+  };
 
   return (
     <div className="max-w-3xl w-full mx-auto space-y-6">
@@ -442,6 +456,25 @@ export const PostProcessingSettings: React.FC = () => {
 
       <SettingsGroup title={t("settings.postProcessing.prompts.title")}>
         <PostProcessingSettingsPrompts />
+      </SettingsGroup>
+
+      <SettingsGroup title={t("settings.postProcessing.title")}>
+        <ToggleSwitch
+          label={t("settings.postProcessing.lowercase.label")}
+          description={t("settings.postProcessing.lowercase.description")}
+          checked={lowercaseEnabled}
+          onChange={handleLowercaseChange}
+          disabled={isUpdating("post_process_lowercase")}
+          grouped={true}
+        />
+        <ToggleSwitch
+          label={t("settings.postProcessing.removePeriods.label")}
+          description={t("settings.postProcessing.removePeriods.description")}
+          checked={removePeriodsEnabled}
+          onChange={handleRemovePeriodsChange}
+          disabled={isUpdating("post_process_remove_periods")}
+          grouped={true}
+        />
       </SettingsGroup>
     </div>
   );

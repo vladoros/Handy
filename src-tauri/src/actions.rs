@@ -350,6 +350,44 @@ pub(crate) async fn process_transcription_output(
                 }
             }
         }
+
+        // Apply text transformations (only when post_process is enabled)
+        if settings.post_process_lowercase {
+            final_text = final_text.to_lowercase();
+        }
+
+        if settings.post_process_remove_periods {
+            let sentence_count = final_text
+                .chars()
+                .filter(|c| matches!(c, '.' | '?' | '!'))
+                .count();
+            if sentence_count <= 1 {
+                // Single sentence: remove periods entirely
+                final_text = final_text.replace('.', "");
+            } else {
+                // Multiple sentences: replace . with ,
+                final_text = final_text.replace('.', ",");
+            }
+        }
+    }
+
+    // Apply text transformations even when post_process is disabled
+    if !post_process {
+        if settings.post_process_lowercase {
+            final_text = final_text.to_lowercase();
+        }
+
+        if settings.post_process_remove_periods {
+            let sentence_count = final_text
+                .chars()
+                .filter(|c| matches!(c, '.' | '?' | '!'))
+                .count();
+            if sentence_count <= 1 {
+                final_text = final_text.replace('.', "");
+            } else {
+                final_text = final_text.replace('.', ",");
+            }
+        }
     } else if final_text != transcription {
         post_processed_text = Some(final_text.clone());
     }

@@ -16,6 +16,8 @@ enum Command {
         hotkey_string: String,
         is_pressed: bool,
         push_to_talk: bool,
+        double_tap_enabled: bool,
+        double_tap_delay_ms: u64,
     },
     Cancel {
         recording_was_active: bool,
@@ -57,11 +59,50 @@ impl TranscriptionCoordinator {
                             hotkey_string,
                             is_pressed,
                             push_to_talk,
+                            double_tap_enabled,
+                            double_tap_delay_ms,
                         } => {
-                            // Debounce rapid-fire press events (key repeat / double-tap).
+                            let double_tap_delay = Duration::from_millis(double_tap_delay_ms);
+                            let now = Instant::now();
+                            let is_double_tap = is_pressed
+                                && double_tap_enabled
+                                && last_press
+                                    .map_or(false, |t| now.duration_since(t) < double_tap_delay);
+
+                            if is_double_tap {
+                                // Double-tap detected: second press
+                                // If push-to-talk: behave like push-to-talk (start on press, stop on release)
+                                // If not push-to-talk: toggle (start if idle, stop if recording)
+                                last_press = None;
+                                if push_to_talk {
+                                    if is_pressed && matches!(stage, Stage::Idle) {
+                                        start(&app, &mut stage, &binding_id, &hotkey_string);
+                                    } else if !is_pressed
+                                        && matches!(&stage, Stage::Recording(id) if id == &binding_id)
+                                    {
+                                        stop(&app, &mut stage, &binding_id, &hotkey_string);
+                                    }
+                                } else {
+                                    // Toggle mode: press to start, press again to stop
+                                    if matches!(stage, Stage::Idle) {
+                                        start(&app, &mut stage, &binding_id, &hotkey_string);
+                                    } else if matches!(&stage, Stage::Recording(id) if id == &binding_id)
+                                    {
+                                        stop(&app, &mut stage, &binding_id, &hotkey_string);
+                                    }
+                                }
+                                continue;
+                            }
+
+                            // Not a double-tap: first press, record timestamp and exit
+                            if is_pressed && double_tap_enabled {
+                                last_press = Some(now);
+                                continue;
+                            }
+
+                            // Debounce rapid-fire press events (key repeat).
                             // Releases always pass through for push-to-talk.
                             if is_pressed {
-                                let now = Instant::now();
                                 if last_press.map_or(false, |t| now.duration_since(t) < DEBOUNCE) {
                                     debug!("Debounced press for '{binding_id}'");
                                     continue;
@@ -124,6 +165,8 @@ impl TranscriptionCoordinator {
         hotkey_string: &str,
         is_pressed: bool,
         push_to_talk: bool,
+        double_tap_enabled: bool,
+        double_tap_delay_ms: u64,
     ) {
         if self
             .tx
@@ -132,6 +175,8 @@ impl TranscriptionCoordinator {
                 hotkey_string: hotkey_string.to_string(),
                 is_pressed,
                 push_to_talk,
+                double_tap_enabled,
+                double_tap_delay_ms,
             })
             .is_err()
         {

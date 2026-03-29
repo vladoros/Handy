@@ -163,6 +163,14 @@ const settingUpdaters: {
     commands.changeOverlayBarsCenteredSetting(value as boolean),
   overlay_bar_color: (value) =>
     commands.changeOverlayBarColorSetting(value as string),
+  double_tap_enabled: (value) =>
+    commands.changeDoubleTapEnabledSetting(value as boolean),
+  double_tap_delay_ms: (value) =>
+    commands.changeDoubleTapDelaySetting(value as number),
+  post_process_lowercase: (value) =>
+    commands.changePostProcessLowercaseSetting(value as boolean),
+  post_process_remove_periods: (value) =>
+    commands.changePostProcessRemovePeriodsSetting(value as boolean),
 };
 
 export const useSettingsStore = create<SettingsStore>()(

@@ -196,6 +196,14 @@
       "pushToTalk": {
         "label": "Push To Talk",
         "description": "Hold to record, release to stop"
+      },
+      "doubleTap": {
+        "label": "Double-Tap",
+        "description": "Press shortcut twice quickly to transcribe",
+        "delay": {
+          "label": "Double-Tap Delay",
+          "description": "Time window for double-tap (ms)"
+        }
       }
     },
     "models": {
@@ -417,6 +425,14 @@
         "cancel": "Cancel",
         "selectToEdit": "Select a prompt above to view and edit its details.",
         "createFirst": "Click 'Create New Prompt' above to create your first post-processing prompt."
+      },
+      "lowercase": {
+        "label": "Remove Capitalization",
+        "description": "Convert all text to lowercase"
+      },
+      "removePeriods": {
+        "label": "Remove Periods from single sentences",
+        "description": "Remove periods from single sentences, replace with commas for multiple sentences"
       }
     },
     "history": {

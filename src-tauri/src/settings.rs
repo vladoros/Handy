@@ -461,6 +461,14 @@ pub struct AppSettings {
     pub overlay_bars_centered: bool,
     #[serde(default = "default_overlay_bar_color")]
     pub overlay_bar_color: String,
+    #[serde(default)]
+    pub double_tap_enabled: bool,
+    #[serde(default = "default_double_tap_delay_ms")]
+    pub double_tap_delay_ms: u64,
+    #[serde(default)]
+    pub post_process_lowercase: bool,
+    #[serde(default)]
+    pub post_process_remove_periods: bool,
 }
 
 fn default_model() -> String {
@@ -687,6 +695,10 @@ fn default_overlay_bar_color() -> String {
     "accent".to_string()
 }
 
+fn default_double_tap_delay_ms() -> u64 {
+    500
+}
+
 fn ensure_post_process_defaults(settings: &mut AppSettings) -> bool {
     let mut changed = false;
     for provider in default_post_process_providers() {
@@ -852,6 +864,10 @@ pub fn get_default_settings() -> AppSettings {
         overlay_show_icons: default_overlay_show_icons(),
         overlay_bars_centered: default_overlay_bars_centered(),
         overlay_bar_color: default_overlay_bar_color(),
+        double_tap_enabled: false,
+        double_tap_delay_ms: default_double_tap_delay_ms(),
+        post_process_lowercase: false,
+        post_process_remove_periods: false,
     }
 }
 
