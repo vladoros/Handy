@@ -155,6 +155,14 @@ const settingUpdaters: {
     commands.changeWhisperGpuDevice(value as number),
   extra_recording_buffer_ms: (value) =>
     commands.changeExtraRecordingBufferSetting(value as number),
+  accent_theme: (value) => commands.changeAccentThemeSetting(value as string),
+  overlay_theme: (value) => commands.changeOverlayThemeSetting(value as string),
+  overlay_show_icons: (value) =>
+    commands.changeOverlayShowIconsSetting(value as boolean),
+  overlay_bars_centered: (value) =>
+    commands.changeOverlayBarsCenteredSetting(value as boolean),
+  overlay_bar_color: (value) =>
+    commands.changeOverlayBarColorSetting(value as string),
 };
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -585,6 +593,15 @@ export const useSettingsStore = create<SettingsStore>()(
         refreshSettings(),
         checkCustomSounds(),
       ]);
+
+      // Apply accent theme from settings
+      const settings = get().settings;
+      if (settings?.accent_theme) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          settings.accent_theme,
+        );
+      }
 
       // Re-fetch settings when the backend changes them (e.g. language
       // reset during model switch). The backend is the source of truth.

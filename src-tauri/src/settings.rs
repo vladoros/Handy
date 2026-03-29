@@ -257,6 +257,27 @@ impl SoundTheme {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum AccentTheme {
+    #[default]
+    Pink,
+    Blue,
+    Green,
+    Purple,
+    Orange,
+    Teal,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum OverlayTheme {
+    #[default]
+    Pill,
+    Minimal,
+    Glassmorphism,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
 #[serde(rename_all = "snake_case")]
 pub enum TypingTool {
@@ -430,6 +451,16 @@ pub struct AppSettings {
     pub whisper_gpu_device: i32,
     #[serde(default)]
     pub extra_recording_buffer_ms: u64,
+    #[serde(default)]
+    pub accent_theme: AccentTheme,
+    #[serde(default)]
+    pub overlay_theme: OverlayTheme,
+    #[serde(default = "default_overlay_show_icons")]
+    pub overlay_show_icons: bool,
+    #[serde(default = "default_overlay_bars_centered")]
+    pub overlay_bars_centered: bool,
+    #[serde(default = "default_overlay_bar_color")]
+    pub overlay_bar_color: String,
 }
 
 fn default_model() -> String {
@@ -644,6 +675,18 @@ fn default_typing_tool() -> TypingTool {
     TypingTool::Auto
 }
 
+fn default_overlay_show_icons() -> bool {
+    true
+}
+
+fn default_overlay_bars_centered() -> bool {
+    false
+}
+
+fn default_overlay_bar_color() -> String {
+    "accent".to_string()
+}
+
 fn ensure_post_process_defaults(settings: &mut AppSettings) -> bool {
     let mut changed = false;
     for provider in default_post_process_providers() {
@@ -804,6 +847,11 @@ pub fn get_default_settings() -> AppSettings {
         ort_accelerator: OrtAcceleratorSetting::default(),
         whisper_gpu_device: default_whisper_gpu_device(),
         extra_recording_buffer_ms: 0,
+        accent_theme: AccentTheme::default(),
+        overlay_theme: OverlayTheme::default(),
+        overlay_show_icons: default_overlay_show_icons(),
+        overlay_bars_centered: default_overlay_bars_centered(),
+        overlay_bar_color: default_overlay_bar_color(),
     }
 }
 
